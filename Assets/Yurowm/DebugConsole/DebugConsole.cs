@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Text;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Yurowm.DebugTools {
@@ -10,15 +11,19 @@ namespace Yurowm.DebugTools {
         public static DebugConsole Instance {
             get {
                 if (!_Instance && Application.isPlaying) {
-                    _Instance = Resources.Load<DebugConsole>("DebugConsole");
-                    if (_Instance) {
-                        _Instance = Instantiate(_Instance.gameObject).GetComponent<DebugConsole>();
-                        _Instance.transform.localPosition = Vector3.zero;
-                        _Instance.transform.localRotation = Quaternion.identity;
-                        _Instance.transform.localScale = Vector3.one;
-                        _Instance.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSave;
-                        _Instance.name = "DebugConsole";
-                    } 
+                    _Instance = FindObjectOfType<DebugConsole>();
+                    if (!_Instance) {
+                        _Instance = Resources.Load<DebugConsole>("DebugConsole");
+                        if (_Instance) {
+                            _Instance = Instantiate(_Instance.gameObject).GetComponent<DebugConsole>();
+                            _Instance.gameObject.SetActive(false);
+                            _Instance.transform.localPosition = Vector3.zero;
+                            _Instance.transform.localRotation = Quaternion.identity;
+                            _Instance.transform.localScale = Vector3.one;
+                            _Instance.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSave;
+                            _Instance.name = "DebugConsole";
+                        } 
+                    }
                 }
                 return _Instance;
             }
@@ -82,7 +87,10 @@ namespace Yurowm.DebugTools {
             if (string.IsNullOrEmpty(command))
                 return;
             WriteLine("<i>> " + command + "</i>");
-            StartCoroutine(Execute(command));
+            if (EventSystem.current)
+                EventSystem.current.StartCoroutine(Execute(command));
+            else
+                WriteLine(Error("I can't run this command because there is no EventSystem object. Sorry..."));
         }
 
         bool cancelRequest = false;
@@ -109,7 +117,7 @@ namespace Yurowm.DebugTools {
 
         void WriteLine(string command) {
             builder.AppendLine(command);
-            output.text = builder.ToString();
+            output.text = builder.ToString().Trim();
         }
 
         public static string Error(string text) {
@@ -122,6 +130,10 @@ namespace Yurowm.DebugTools {
 
         public static string Alias(string text) {
             return ColorizeText(text, Color.cyan);
+        }
+
+        public static string Warning(string text) {
+            return ColorizeText(text, Color.yellow, false, true);
         }
 
         public static string ColorizeText(string text, Color? color = null, bool bold = false, bool italic = false) {
