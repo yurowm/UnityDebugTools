@@ -34,5 +34,10 @@ namespace Yurowm.DebugToolsTest {
         public void F() {
             DebugPanel.AddDelegate("Kill the enemy", () => Debug.Log("Enemy is killed!"));
         }
+
+        [QuickCommand(@"test quick command", "SomeText 123", "just for testing! Check how it works")]
+        public static void TestQuickCommand(string text, int number) {
+            Debug.Log("Text: " + text + ", Number: " + number.ToString());
+        }
     }
 }

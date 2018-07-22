@@ -9,7 +9,7 @@ namespace Yurowm.DebugTools {
         static DebugPanel _Instance = null;
         public static DebugPanel Instance {
             get {
-                if (!_Instance && Application.isPlaying) {
+                if (!_Instance && Application.isPlaying) { 
                     _Instance = FindObjectOfType<DebugPanel>();
                     if (!_Instance) {
                         _Instance = Resources.Load<DebugPanel>("DebugPanel");
@@ -18,8 +18,11 @@ namespace Yurowm.DebugTools {
                             _Instance.transform.localPosition = Vector3.zero;
                             _Instance.transform.localRotation = Quaternion.identity;
                             _Instance.transform.localScale = Vector3.one;
-                            _Instance.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSave;
                             _Instance.name = "DebugPanel";
+                            _Instance.gameObject.SetActive(false);
+                            _Instance.gameObject.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSave;
+                            if (Application.isEditor)
+                                _Instance.gameObject.SetActive(false);
                         }
                     }
                 }

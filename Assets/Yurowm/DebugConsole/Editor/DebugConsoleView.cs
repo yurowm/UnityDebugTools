@@ -42,6 +42,7 @@ namespace Yurowm.DebugTools {
             outputStyle = new GUIStyle(EditorStyles.label);
             outputStyle.normal.textColor = Color.white;
             outputStyle.richText = true;
+            outputStyle.wordWrap = true;
             outputStyle.alignment = TextAnchor.LowerLeft;
             outputStyle.clipping = TextClipping.Clip;
             outputStyle.hover = outputStyle.normal;
@@ -90,10 +91,14 @@ namespace Yurowm.DebugTools {
                     if (Event.current.keyCode == KeyCode.Return) {
                         command = command.Trim();
                         if (!string.IsNullOrEmpty(command)) {
-                            DebugConsole.Instance.OnSubmit(command);
-                            if (command != commandsHistory.Last()) {
-                                commandsHistory.Add(command);
-                                commandsHistoryIndex = commandsHistory.Count;
+                            try {
+                                DebugConsole.Instance.OnSubmit(command);
+                                if (commandsHistory.Count == 0 || command != commandsHistory.Last()) {
+                                    commandsHistory.Add(command);
+                                    commandsHistoryIndex = commandsHistory.Count;
+                                }
+                            } catch (Exception e) {
+                                DebugConsole.Instance.WriteLine(DebugConsole.Error(e.ToString()));
                             }
                             scrollPosition = new Vector2(0, float.MaxValue);
                             command = "";
@@ -124,6 +129,7 @@ namespace Yurowm.DebugTools {
                 }
             }
             EditorGUILayout.EndVertical();
+            Repaint();
         }
 
         FieldInfo textEditorProvider = null;

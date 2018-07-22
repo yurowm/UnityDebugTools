@@ -16,16 +16,31 @@ namespace Yurowm.DebugTools {
                         _Instance = Resources.Load<DebugConsole>("DebugConsole");
                         if (_Instance) {
                             _Instance = Instantiate(_Instance.gameObject).GetComponent<DebugConsole>();
-                            _Instance.gameObject.SetActive(false);
                             _Instance.transform.localPosition = Vector3.zero;
                             _Instance.transform.localRotation = Quaternion.identity;
                             _Instance.transform.localScale = Vector3.one;
-                            _Instance.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSave;
+                            _Instance.gameObject.SetActive(false);
+                            _Instance.gameObject.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSave;
                             _Instance.name = "DebugConsole";
                         } 
                     }
                 }
                 return _Instance;
+            }
+        }
+
+        static DebugConsoleUpdater _Updater = null;
+        static DebugConsoleUpdater Updater {
+            get {
+                if (!_Updater && Application.isPlaying) {
+                    _Updater = FindObjectOfType<DebugConsoleUpdater>();
+                    if (!_Updater) {
+                        _Updater = new GameObject("DebugConsoleUpdater")
+                            .AddComponent<DebugConsoleUpdater>();
+                        _Updater.gameObject.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSave;
+                    }
+                }
+                return _Updater;
             }
         }
 
@@ -87,10 +102,7 @@ namespace Yurowm.DebugTools {
             if (string.IsNullOrEmpty(command))
                 return;
             WriteLine("<i>> " + command + "</i>");
-            if (EventSystem.current)
-                EventSystem.current.StartCoroutine(Execute(command));
-            else
-                WriteLine(Error("I can't run this command because there is no EventSystem object. Sorry..."));
+            Updater.StartCoroutine(Execute(command));
         }
 
         bool cancelRequest = false;
@@ -115,7 +127,7 @@ namespace Yurowm.DebugTools {
             cancel.gameObject.SetActive(false);
         }
 
-        void WriteLine(string command) {
+        public void WriteLine(string command) {
             builder.AppendLine(command);
             output.text = builder.ToString().Trim();
         }
@@ -155,5 +167,9 @@ namespace Yurowm.DebugTools {
 
             return builder.ToString();
         }
+    }
+
+    class DebugConsoleUpdater : MonoBehaviour {
+
     }
 }

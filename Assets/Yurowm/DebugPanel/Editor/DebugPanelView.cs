@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
@@ -97,6 +98,7 @@ namespace Yurowm.DebugTools {
         const string delegatesCategory = "Delegates";
         Vector2 scrollPosition = new Vector2();
         void DrawLog() {
+
             EditorGUILayout.BeginVertical(outputBackgroundStyle, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
             if (EditorApplication.isPlaying) {
                 scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
